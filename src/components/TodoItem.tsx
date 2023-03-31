@@ -28,7 +28,6 @@ const Remove = styled.div`
     }
 `;
 
-
 // hover 속성을 줘서 마우스를 올리면 휴지통 아이콘이 나타나게 한다.
 const TodoItemBlock = styled.div`
     display: flex;
