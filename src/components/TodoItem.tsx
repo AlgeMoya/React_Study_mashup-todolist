@@ -2,9 +2,10 @@
 import React from "react";
 import styled, {css} from "styled-components";
 import {MdDone, MdDelete} from 'react-icons/md'; // 아이콘 불러오기
+import { useTodoDispatch } from "./TodoContext";
 
 type TodoItemProps = {
-  // id: any;
+  id: any;
   done: boolean;
   text: string;
 };
@@ -14,18 +15,19 @@ interface Container extends TodoItemProps {
 }
 
 // 휴지통 아이콘을 나타내는 부분. 휴지통 아이콘을 누르면 항목이 삭제된다.
-const Remove = styled.div `
+const Remove = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
     color: #dee2e6;
     font-size: 24px;
     cursor: pointer;
-    hover {
-        color: #ff6b6b;
+    opacity: 0;
+    &:hover {
+      color: #ff6b6b;
     }
-    display: none;
 `;
+
 
 // hover 속성을 줘서 마우스를 올리면 휴지통 아이콘이 나타나게 한다.
 const TodoItemBlock = styled.div`
@@ -35,8 +37,9 @@ const TodoItemBlock = styled.div`
     padding-bottom: 12px;
     /* TodoItemBlock 위에 커서가 있을 때 Remove 컴포넌트를 보여준다 */
     /* Remove 컴포넌트의 display 속성을 여기서 정하는 걸로 덮어씌우는 것 같다. */
-    hover {
+    &:hover {
         ${Remove} {
+            opacity: 1;
             display: initial;
         }
     }
@@ -81,16 +84,24 @@ const Text = styled.div<{done: any}>`
 `;
 
 // done이 true면 할 일이 완료된 것으로 보고 CheckCircle에 체크 표시를 나타낸다.
-function TodoItem({ done, text }: TodoItemProps) {
+function TodoItem({ id, done, text }: TodoItemProps) {
+  const dispatch = useTodoDispatch();
+  const onToggle = () => dispatch({type: 'TOGGLE', id});
+  const onRemove = () => dispatch({type: 'REMOVE', id});
+
     return (
       <TodoItemBlock>
-        <CheckCircle done={done}>{done && <MdDone />}</CheckCircle>
+        <CheckCircle done={done} onClick={onToggle}>
+          {done && <MdDone />}
+        </CheckCircle>
         <Text done={done}>{text}</Text>
-        <Remove>
+        <Remove onClick={onRemove}>
           <MdDelete />
         </Remove>
       </TodoItemBlock>
     );
   }
   
-  export default TodoItem;
+
+  // React.memo로 하면 다른 항목이 업데이트될 때 불필요한 리렌더링을 방지하여 성능을 최적화할 수 있게 된다.
+  export default React.memo(TodoItem);
